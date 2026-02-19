@@ -2,6 +2,17 @@
 
 Enterprise-level Flask backend with SQLite database for NYC Taxi Trip data analysis.
 
+## Team Name 
+Tritech Minds
+
+## Authors 
+- Kami Pacifique
+- Ndahiro Prince
+- Gasangwa Teta
+
+## Project Description 
+**Urban Mobility NYC** is an enterprise-level data analytics platform that processes and visualizes 7.6 million NYC taxi trip records. The project features a Flask REST API backend connected to a normalized SQLite database, an interactive HTML5 frontend dashboard, and a comprehensive ETL pipeline that extracts raw parquet data, integrates zone metadata and shapefiles, engineers eight derived features (duration, fare efficiency, speed, tip percentage, etc.), and cleans/validates the data into 7.5 million clean records. The system serves 12 REST endpoints with optimized indexed queries, providing interactive visualizations across five dashboard views for analyzing taxi mobility patterns, fare metrics, and spatial trends in New York City.
+
 ## System Architecture
 
 ```
@@ -225,3 +236,9 @@ backend/
 - CORS is enabled for frontend integration
 - Data is indexed for query performance
 - Large datasets are processed in chunks to manage memory
+
+## Logbook Link :
+https://docs.google.com/spreadsheets/d/1dBhxZnOIPe98f3GyBsKL9tCd1_8EINn97VmrFVWUw_I/edit?usp=sharing 
+
+## Video link:
+https://youtu.be/fEX9_8qX1B8
