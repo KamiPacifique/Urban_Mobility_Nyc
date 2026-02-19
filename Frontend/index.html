@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Taxi Analytics Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon"></div>
+                <div>
+                    <h1>NYC Taxi Analytics</h1>
+                    <p class="subtitle">Urban Mobility Platform</p>
+                </div>
+            </div>
+            <div class="header-stats" id="headerStats">
+                <div class="stat-item">
+                    <span class="stat-value">--</span>
+                    <span class="stat-label">Total Trips</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">--</span>
+                    <span class="stat-label">Avg Fare</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">--</span>
+                    <span class="stat-label">Total Revenue</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar">
+            <div class="filter-section">
+                <h3>
+                    <span class="icon"></span>
+                    Data Filters
+                </h3>
+                
+                <div class="filter-group">
+                    <label for="boroughFilter">Borough</label>
+                    <select id="boroughFilter" class="filter-input">
+                        <option value="">All Boroughs</option>
+                        <option value="Manhattan">Manhattan</option>
+                        <option value="Brooklyn">Brooklyn</option>
+                        <option value="Queens">Queens</option>
+                        <option value="Bronx">Bronx</option>
+                        <option value="Staten Island">Staten Island</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="hourFilter">Time of Day</label>
+                    <select id="hourFilter" class="filter-input">
+                        <option value="">All Hours</option>
+                        <option value="0-6">Night (12am - 6am)</option>
+                        <option value="6-12">Morning (6am - 12pm)</option>
+                        <option value="12-18">Afternoon (12pm - 6pm)</option>
+                        <option value="18-24">Evening (6pm - 12am)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="weekendFilter">Day Type</label>
+                    <select id="weekendFilter" class="filter-input">
+                        <option value="">All Days</option>
+                        <option value="0">Weekdays</option>
+                        <option value="1">Weekends</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Fare Range ($)</label>
+                    <div class="range-inputs">
+                        <input type="number" id="minFare" class="filter-input" placeholder="Min" min="0" step="1">
+                        <span class="range-separator">to</span>
+                        <input type="number" id="maxFare" class="filter-input" placeholder="Max" min="0" step="1">
+                    </div>
+                </div>
+
+                <button id="applyFilters" class="btn-primary">
+                    Apply Filters
+                </button>
+                <button id="resetFilters" class="btn-secondary">
+                    Reset All
+                </button>
+            </div>
+
+            <!-- Quick Insights -->
+            <div class="insights-section">
+                <h3>
+                    <span class="icon"></span>
+                    Quick Insights
+                </h3>
+                <div id="quickInsights" class="insights-list">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button class="tab-btn active" data-view="overview">
+                    <span class="icon"></span>
+                    Overview
+                </button>
+                <button class="tab-btn" data-view="temporal">
+                    <span class="icon"></span>
+                    Temporal Patterns
+                </button>
+                <button class="tab-btn" data-view="spatial">
+                    <span class="icon"></span>
+                    Geographic Analysis
+                </button>
+                <button class="tab-btn" data-view="routes">
+                    <span class="icon"></span>
+                    Popular Routes
+                </button>
+                <button class="tab-btn" data-view="trips">
+                    <span class="icon"></span>
+                    Trip Explorer
+                </button>
+            </div>
+
+            <!-- Overview View -->
+            <div id="overviewView" class="view-content active">
+                <div class="dashboard-grid">
+                    <!-- Key Metrics -->
+                    <div class="card metric-cards">
+                        <h3>Key Performance Metrics</h3>
+                        <div class="metrics-grid" id="kpiMetrics">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Fare Distribution -->
+                    <div class="card chart-card">
+                        <h3>Fare Distribution</h3>
+                        <canvas id="fareDistributionChart"></canvas>
+                    </div>
+
+                    <!-- Borough Comparison -->
+                    <div class="card chart-card">
+                        <h3>Trip Volume by Borough</h3>
+                        <canvas id="boroughChart"></canvas>
+                    </div>
+
+                    <!-- Weekend vs Weekday -->
+                    <div class="card chart-card">
+                        <h3>Weekend vs Weekday Analysis</h3>
+                        <canvas id="weekendComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temporal Patterns View -->
+            <div id="temporalView" class="view-content">
+                <div class="dashboard-grid">
+                    <div class="card chart-card full-width">
+                        <h3>Hourly Trip Patterns</h3>
+                        <canvas id="hourlyChart"></canvas>
+                    </div>
+
+                    <div class="card chart-card">
+                        <h3>Peak Hours Analysis</h3>
+                        <canvas id="peakHoursChart"></canvas>
+                    </div>
+
+                    <div class="card chart-card">
+                        <h3>Revenue by Hour</h3>
+                        <canvas id="hourlyRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spatial View -->
+            <div id="spatialView" class="view-content">
+                <div class="dashboard-grid">
+                    <div class="card map-card">
+                        <h3>NYC Taxi Zones Heat Map</h3>
+                        <div id="map" class="map-container"></div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <h3>Top Pickup Locations</h3>
+                        <div id="topPickups" class="list-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Routes View -->
+            <div id="routesView" class="view-content">
+                <div class="dashboard-grid">
+                    <div class="card full-width">
+                        <h3>Most Popular Routes</h3>
+                        <div class="table-container">
+                            <table id="routesTable" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Pickup Zone</th>
+                                        <th>Dropoff Zone</th>
+                                        <th>Trip Count</th>
+                                        <th>Avg Fare</th>
+                                        <th>Avg Distance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="routesTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trip Explorer View -->
+            <div id="tripsView" class="view-content">
+                <div class="card full-width">
+                    <div class="explorer-header">
+                        <h3>Trip Explorer</h3>
+                        <div class="pagination-controls">
+                            <button id="prevPage" class="btn-icon" disabled>◄</button>
+                            <span id="pageInfo">Page 1</span>
+                            <button id="nextPage" class="btn-icon">►</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="tripsTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date/Time</th>
+                                    <th>Pickup</th>
+                                    <th>Dropoff</th>
+                                    <th>Distance</th>
+                                    <th>Duration</th>
+                                    <th>Fare</th>
+                                    <th>Tip %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tripsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
